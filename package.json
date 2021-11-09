@@ -1,0 +1,16 @@
+{
+  "name": "5irechain-telegram-faucet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@polkadot/api": "1.22.1",
+    "dotenv": "^8.2.0",
+    "telegraf": "^3.38.0"
+  }
+}
