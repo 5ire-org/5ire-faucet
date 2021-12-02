@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@polkadot/api": "1.22.1",
+    "@polkadot/api": "6.10.3",
     "dotenv": "^8.2.0",
     "telegraf": "^3.38.0"
   }
