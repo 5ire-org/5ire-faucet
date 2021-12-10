@@ -3,9 +3,8 @@ const { Telegraf } = require("telegraf");
 // this is for address format verification
 const UtilCrypto = require("@polkadot/util-crypto");
 // connect to the node
-const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api");
+const { ApiPromise, WsProvider, Keyring } = require("@5ire/api");
 const { BN } = require("bn.js");
-const fs = require("fs");
 // this is .json additional types file
 const ADDITIONAL_TYPES = require("./types/types.json");
 
