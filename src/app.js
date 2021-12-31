@@ -160,6 +160,8 @@ bot.help(async (ctx) => {
 bot.command("request", async (ctx) => {
   const resp = await faucet.requestToken(ctx.message);
   await ctx.reply(resp);
+}).catch((error) => {
+  console.log(error);
 });
 
 // Run the bot
