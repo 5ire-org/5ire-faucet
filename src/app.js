@@ -3,8 +3,7 @@ const { Telegraf } = require("telegraf");
 // this is for address format verification
 const UtilCrypto = require("@polkadot/util-crypto");
 // connect to the node
-const { ApiPromise, WsProvider, Keyring } = require("@polkadot/api");
-const { BN } = require("bn.js");
+const { ApiPromise, WsProvider, Keyring } = require("@5ire/api");
 const fs = require("fs");
 // this is .json additional types file
 const ADDITIONAL_TYPES = require("./types/types.json");
@@ -24,7 +23,7 @@ class GenericFaucetInterface {
     this.tokenName = config.tokenName;
     this.addressType = config.addressType;
     this.timeLimitHours = config.timeLimitHours;
-    this.decimals = new BN(config.decimals);
+    this.decimals = BigInt(config.decimals);
     // Help message when user first starts or types help command
     this.helpMessage = `Welcome to the ${process.env.FAUCET_NAME}! 
     To request for tokens send the message: 
@@ -89,7 +88,7 @@ class GenericFaucetInterface {
         );
 
         this.initKeyring();
-        const parsedAmount = this.decimals.mul(new BN(this.amount));
+        const parsedAmount = this.decimals * BigInt(this.amount);
         console.log(`Sending ${this.amount} ${this.tokenName} to ${address}`);
         const transfer = this.api.tx.balances.transfer(address, parsedAmount);
         const hash = await transfer.signAndSend(this.keyRing);
