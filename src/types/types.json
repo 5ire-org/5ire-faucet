@@ -1,5 +1,5 @@
 {
-  "Address": "AccountId",
+  "Address": "MultiAddress",
   "TokenBalance": "u128",
   "TokenId": "u128",
   "Public": "AccountId",
