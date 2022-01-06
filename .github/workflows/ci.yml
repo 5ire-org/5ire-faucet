@@ -152,6 +152,7 @@ jobs:
           repository: "5ire-org/5ire-infrastructure"
           token: "${{ secrets.GITHUB_TOKEN }}"
           ref: "develop"
+          ssh-key: "${{ secrets.DEPLOY_KEY }}"
 
       - name: Update the manifest files - local
         run: |
