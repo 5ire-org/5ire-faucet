@@ -152,13 +152,15 @@ jobs:
           repository: git@github.com:5ire-org/5ire-infrastructure.git
           ssh-key: "${{ secrets.DEPLOY_KEY }}"
           token: "${{ secrets.GITHUB_TOKEN }}"
+          ref: "develop"
+
       - name: Update the manifest files - local
         run: |
           sed -i "s|${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}}.*|${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}}:${{ github.run_number }}|g" ${{ github.workspace }}/argocd-charts/${{ env.IMAGE_REPO }}/faucet/faucet.yml;
       - name: Update the manifest files - remote
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          branch: "develop"
           commit_message: "Update 5irechain/${{ env.IMAGE_NAME}} image tag in the manifests"
           commit_options: "--signoff"
           file_pattern: "*.yaml"
