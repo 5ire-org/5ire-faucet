@@ -161,6 +161,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: "develop"
-          commit_message: "Update 5irechain/${{ env.IMAGE_NAME}} image tag in the manifests"
+          commit_message: "Update ${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}} image tag in the manifests"
           commit_options: "--signoff"
-          file_pattern: "*.yaml"
