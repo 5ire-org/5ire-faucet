@@ -149,7 +149,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: "https://github.com/5ire-org/5ire-infrastructure.git"
+          repository: "5ire-org/5ire-infrastructure"
           ssh-key: "${{ secrets.DEPLOY_KEY }}"
           token: "${{ secrets.GITHUB_TOKEN }}"
           ref: "develop"
