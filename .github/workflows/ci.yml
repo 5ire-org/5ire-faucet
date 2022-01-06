@@ -4,6 +4,9 @@ name: CI-Builder
 on:
   # Trigger at every push. Action will also be visible from Pull Requests to main
   push:
+    branches:    
+      # Push events on main branch
+      - develop
   workflow_dispatch:
 
 env:
@@ -150,9 +153,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: "5ire-org/5ire-infrastructure"
-          ssh-key: "${{ secrets.DEPLOY_KEY }}"
           token: "${{ secrets.GITHUB_TOKEN }}"
           ref: "develop"
+          ssh-key: "${{ secrets.DEPLOY_KEY }}"
 
       - name: Update the manifest files - local
         run: |
@@ -161,5 +164,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: "develop"
-          commit_message: "Update ${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}} image tag in the manifests"
+          commit_message: "update ${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}}:${{ github.run_number }} image for ${{ github.repository }} manifest"
           commit_options: "--signoff"
