@@ -8,6 +8,7 @@ const { BN } = require("bn.js");
 const fs = require("fs");
 // this is .json additional types file
 const ADDITIONAL_TYPES = require("./types/types.json");
+const { connect } = require("http2");
 
 // this is the Generic Faucet Interface
 class GenericFaucetInterface {
@@ -17,7 +18,8 @@ class GenericFaucetInterface {
     this.api = undefined;
     this.mnemonic = config.mnemonic;
     this.keyRing = undefined;
-    this.providerUrl = config.providerUrl;
+    this.providerUrl = JSON.parse(config.providerUrl);
+    this.baseUrl = config.baseUrl;
     this.amount = config.amount;
     this.tokenName = config.tokenName;
     this.addressType = config.addressType;
@@ -59,31 +61,44 @@ class GenericFaucetInterface {
     // // TODO: better error handling
     this.keyRing = keyring.addFromMnemonic(this.mnemonic);
   }
-  // This initializes api
-  async initApi() {
-    const ws = new WsProvider(this.providerUrl);
-    // Instantiate the API
-    this.api = await ApiPromise.create({ types: this.types, provider: ws });
-    // Retrieve the chain & node information information via rpc calls
-    const [chain, nodeName, nodeVersion] = await Promise.all([
-      this.api.rpc.system.chain(),
-      this.api.rpc.system.name(),
-      this.api.rpc.system.version(),
-    ]);
-    // Log these stats
-    console.log(
-      `You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`
-    );
+
+  async sendToken(i, address, chatID) {
+    if (i > this.providerUrl.endpoints.length) {
+      console.log("Network down");
+      bot.telegram.sendMessage(chatID,`Unable to transfer: Network Down`);
+    } else {
+      var url = "wss://" + this.providerUrl.endpoints[i] + this.baseUrl;
+      console.log(`Trying to connect with node: ${this.providerUrl.endpoints[i]}`);
+      const ws = await new WsProvider(url)
+      ws.on("disconnected", async () => {
+        await ws.unsubscribe();
+        await ws.disconnect();
+        this.sendToken(i + 1, address, chatID)
+      });
+      ws.on("connected", async () => {
+        this.api = await ApiPromise.create({ types: this.types, provider: ws });
+        // Retrieve the chain & node information information via rpc calls
+        const [chain, nodeName, nodeVersion] = await Promise.all([
+          this.api.rpc.system.chain(),
+          this.api.rpc.system.name(),
+          this.api.rpc.system.version(),
+        ]);
+        // Log these stats
+        console.log(
+          `You are connected to chain ${chain} using ${nodeName} v${nodeVersion} ${this.providerUrl.endpoints[i]}`
+        );
+
+        this.initKeyring();
+        const parsedAmount = this.decimals.mul(new BN(this.amount));
+        console.log(`Sending ${this.amount} ${this.tokenName} to ${address}`);
+        const transfer = this.api.tx.balances.transfer(address, parsedAmount);
+        const hash = await transfer.signAndSend(this.keyRing);
+        console.log("Transfer sent with hash", hash.toHex());
+        bot.telegram.sendMessage(chatID,`Transfer sucessful with hash ${hash.toHex()}`);
+      });
+    }
   }
-  async sendToken(address) {
-    const api = await this.initApi();
-    this.initKeyring();
-    const parsedAmount = this.decimals.mul(new BN(this.amount));
-    console.log(`Sending ${this.amount} ${this.tokenName} to ${address}`);
-    const transfer = this.api.tx.balances.transfer(address, parsedAmount);
-    const hash = await transfer.signAndSend(this.keyRing);
-    console.log("Transfer sent with hash", hash.toHex());
-  }
+
   // function that telgram bot calls
   async requestToken(message) {
     let response;
@@ -103,7 +118,7 @@ class GenericFaucetInterface {
         // check if now - last > timeLimitHours * 60 * 60 * 1000
         if (now - last > this.timeLimitHours * 1000 * 60 * 60) {
           // yes limit has passed
-          await this.sendToken(address);
+          await this.sendToken(0,address,message.chat.id);
           // update the records to show this
           this.records[senderId].push(now);
         } else {
@@ -113,7 +128,7 @@ class GenericFaucetInterface {
       } else {
         // this is users first request
         // yes limit has passed
-        await this.sendToken(address);
+        await this.sendToken(0,address,message.chat.id);
         // create the record
         this.records[senderId] = [];
         // update the records to show this
@@ -132,6 +147,7 @@ require("dotenv").config();
 const config = {
   types: ADDITIONAL_TYPES,
   providerUrl: process.env.NODE_WS_URL,
+  baseUrl: process.env.BASE_URL,
   amount: parseFloat(process.env.AMOUNT),
   tokenName: process.env.TOKEN_NAME,
   addressType: parseInt(process.env.ADDRESS_TYPE),
