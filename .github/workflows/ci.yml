@@ -4,6 +4,9 @@ name: CI-Builder
 on:
   # Trigger at every push. Action will also be visible from Pull Requests to main
   push:
+    branches:    
+      # Push events on main branch
+      - develop
   workflow_dispatch:
 
 env:
@@ -152,6 +155,7 @@ jobs:
           repository: "5ire-org/5ire-infrastructure"
           token: "${{ secrets.GITHUB_TOKEN }}"
           ref: "develop"
+          ssh-key: "${{ secrets.DEPLOY_KEY }}"
 
       - name: Update the manifest files - local
         run: |
