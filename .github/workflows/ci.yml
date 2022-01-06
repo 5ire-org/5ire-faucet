@@ -150,7 +150,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: "5ire-org/5ire-infrastructure"
-          ssh-key: "${{ secrets.DEPLOY_KEY }}"
           token: "${{ secrets.GITHUB_TOKEN }}"
           ref: "develop"
 
@@ -161,5 +160,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: "develop"
-          commit_message: "Update ${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}} image tag in the manifests"
+          commit_message: "update ${{ env.IMAGE_REPO }}/${{ env.IMAGE_NAME}}:${{ github.run_number }} image for ${{ github.repository }} manifest"
           commit_options: "--signoff"
