@@ -4,6 +4,9 @@ name: CI-Builder
 on:
   # Trigger at every push. Action will also be visible from Pull Requests to main
   push:
+    branches:    
+      # Push events on main branch
+      - develop
   workflow_dispatch:
 
 env:
